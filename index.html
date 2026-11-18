@@ -242,7 +242,7 @@ const PERMS = ['Người xem','Người nhận xét','Người chỉnh sửa','Q
 const SHORT = {'Người xem':'Xem','Người nhận xét':'Nhận xét','Người chỉnh sửa':'Sửa','Quản lý nội dung':'QL'};
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const strip = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+const strip = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
 const initials = n => n.split(/\s+/).filter(Boolean).slice(-2).map(w => w[0]).join('').toUpperCase();
 function members(self, area, depts){
   const out = [];
@@ -442,7 +442,7 @@ $('share').addEventListener('click', async () => {
 });
 $('csv').addEventListener('click', () => {
   const d = collect(), q = s => '"' + String(s).replace(/"/g,'""') + '"';
-  let csv = '﻿' + ['Thời gian','Người đề nghị','Email đề nghị','Folder','Họ tên','Email được cấp','Quyền','Ghi chú'].map(q).join(',') + '\n';
+  let csv = '\uFEFF' + ['Thời gian','Người đề nghị','Email đề nghị','Folder','Họ tên','Email được cấp','Quyền','Ghi chú'].map(q).join(',') + '\n';
   d.rows.forEach(r => csv += [d.time, d.mgrName, d.mgr, r.folder, r.name, r.email, r.perm, d.note].map(q).join(',') + '\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));

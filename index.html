@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E2D5A">
+<title>Phân quyền Shared Drive – Golden Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E2D5A;--navy2:#2C3E73;--orange:#F5A623;--bg:#F3F5F9;--line:#E2E6EE;--muted:#6B7280;--on:#FFF4DF}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:'Be Vietnam Pro',Roboto,Arial,sans-serif;background:var(--bg);color:#1f2937;font-size:16px;padding-bottom:96px}
+header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:14px 16px 12px;padding-top:max(14px,env(safe-area-inset-top))}
+header .t{font-weight:700;font-size:17px;line-height:1.3}
+header .s{font-size:12px;opacity:.8;margin-top:2px}
+.steps{display:flex;gap:6px;margin-top:10px}
+.steps div{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.25)}
+.steps div.on{background:var(--orange)}
+main{max-width:640px;margin:0 auto;padding:14px}
+.view{display:none}.view.on{display:block}
+h2{font-size:18px;color:var(--navy);margin:6px 0 4px}
+.hint{color:var(--muted);font-size:13px;margin:0 0 12px;line-height:1.5}
+.search{width:100%;font:inherit;font-size:16px;padding:12px 14px 12px 40px;border:1px solid var(--line);border-radius:12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='M13 13l4 4'/%3E%3C/svg%3E") no-repeat 13px center;margin-bottom:12px}
+.search:focus,textarea:focus,input:focus{outline:2px solid var(--orange);border-color:var(--orange)}
+.mgr{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;min-height:60px}
+.mgr:active{background:var(--on)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.mgr .n{font-weight:600}.mgr .e{font-size:13px;color:var(--muted);word-break:break-all}
+.mgr .c{margin-left:auto;font-size:12px;color:var(--navy);background:#EEF1F8;border-radius:10px;padding:3px 8px;white-space:nowrap}
+.who{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.who button{margin-left:auto}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:12px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.legend b{color:var(--navy)}
+.fold{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.fh{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;min-height:64px}
+.fh .ic{font-size:22px}
+.fh .p{font-size:12px;color:var(--muted)}
+.fh .nm{font-weight:600;color:var(--navy);line-height:1.3}
+.fh .bd{margin-left:auto;background:var(--line);color:var(--navy);font-weight:700;font-size:13px;border-radius:12px;padding:3px 10px;flex:none}
+.fh .bd.has{background:var(--orange)}
+.fh .ch{transition:transform .2s;color:var(--muted);flex:none}
+.fold.open .ch{transform:rotate(180deg)}
+.fb{display:none;border-top:1px solid var(--line);padding:10px 12px 14px}
+.fold.open .fb{display:block}
+.tools{display:flex;gap:8px;margin-bottom:8px}
+.tools .search{margin:0;padding-top:10px;padding-bottom:10px;font-size:15px}
+.per{padding:10px 4px;border-bottom:1px solid #F0F2F6}
+.per:last-of-type{border-bottom:0}
+.per.on{background:var(--on);border-radius:10px;padding-left:8px;padding-right:8px}
+.per .n{font-weight:600;font-size:15px}
+.per .e{font-size:12px;color:var(--muted);word-break:break-all;margin-bottom:8px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg button{font:inherit;font-size:13px;font-weight:600;min-height:42px;border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--navy);padding:4px 2px;cursor:pointer;line-height:1.2}
+.seg button.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.ext{margin-top:12px}
+.ext label{display:block;font-weight:600;font-size:14px;margin-bottom:6px;color:var(--navy)}
+textarea{width:100%;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;resize:vertical}
+.lnk{background:none;border:0;color:var(--navy);font:inherit;font-size:13px;font-weight:600;text-decoration:underline;padding:8px 4px;cursor:pointer}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom));display:none;box-shadow:0 -4px 16px rgba(30,45,90,.08)}
+.bar.on{display:block}
+.bar .in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.bar .cnt{font-size:13px;color:var(--muted);line-height:1.3}
+.bar .cnt b{color:var(--navy);font-size:16px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:12px;min-height:48px;padding:0 18px;cursor:pointer;font-size:15px}
+.btn.pri{background:var(--orange);color:var(--navy);margin-left:auto}
+.btn.nav{background:var(--navy);color:#fff}
+.btn.gh{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.sm{min-height:36px;font-size:13px;padding:0 12px}
+.btn:disabled{opacity:.45}
+.sum{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.sum h3{margin:0 0 8px;font-size:15px;color:var(--navy)}
+.sum .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #F0F2F6;font-size:14px}
+.sum .row:first-of-type{border-top:0}
+.sum .row .r{font-weight:600;color:var(--navy);white-space:nowrap}
+.sum .row .e{font-size:12px;color:var(--muted);word-break:break-all}
+.meta{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+.acts{display:grid;gap:8px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;font-size:14px;display:none;z-index:40;white-space:nowrap}
+.items{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 8px;margin-bottom:6px}
+.items button{font:inherit;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:20px;padding:0 12px;min-height:38px;cursor:pointer;flex:none}
+.items button.act{background:var(--navy);color:#fff;border-color:var(--navy)}
+.items button .k{background:var(--orange);color:var(--navy);border-radius:10px;padding:1px 7px;margin-left:5px;font-size:11px}
+.items button.plus{border-style:dashed;color:var(--muted)}
+.addrow{display:none;gap:6px;margin-bottom:10px}.addrow.on{display:flex}
+.addrow input{flex:1;min-width:0;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.cur{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--navy);font-weight:600;background:#EEF1F8;border-radius:10px;padding:8px 10px;margin-bottom:8px;word-break:break-word}
+.cur .del{background:none;border:0;color:#B42318;font:inherit;font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;flex:none}
+.empty{text-align:center;color:var(--muted);padding:20px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="t">Phân quyền Shared Drive</div>
+  <div class="s" id="sub">Golden Management · Bước 1/3: Chọn email của bạn</div>
+  <div class="steps"><div id="s1" class="on"></div><div id="s2"></div><div id="s3"></div></div>
+</header>
+
+<main>
+  <!-- BƯỚC 1 -->
+  <section class="view on" id="v1">
+    <h2>Bạn là ai?</h2>
+    <p class="hint">Chọn email quản lý đang sử dụng.</p>
+    <input class="search" id="q1" type="search" placeholder="Tìm tên hoặc email…">
+    <div id="mgrList"></div>
+  </section>
+
+  <!-- BƯỚC 2 -->
+  <section class="view" id="v2">
+    <div class="who"><div class="av" id="wAv"></div><div><div class="n" id="wN" style="font-weight:600"></div><div class="e" id="wE" style="font-size:12px;color:var(--muted);word-break:break-all"></div></div><button class="btn gh sm" id="chg">Đổi</button></div>
+    <div class="legend">
+      <span><b>Xem</b> = Người xem</span><span><b>Nhận xét</b> = Người nhận xét</span>
+      <span><b>Sửa</b> = Người chỉnh sửa</span><span><b>QL</b> = Quản lý nội dung</span>
+    </div>
+    <p class="hint">Mở từng folder → chọn <b>Toàn bộ folder</b> hoặc từng <b>file con</b> → bấm mức quyền cho người cần cấp. Bấm lại để bỏ chọn. File con chưa có trong danh sách thì bấm <b>＋ File con</b> để thêm.</p>
+    <div id="folders"></div>
+    <div class="sum">
+      <h3>Ghi chú chung (nếu có)</h3>
+      <textarea id="note" rows="2" placeholder="VD: cấp tạm đến hết tháng 12"></textarea>
+    </div>
+  </section>
+
+  <!-- BƯỚC 3 -->
+  <section class="view" id="v3">
+    <h2>Kiểm tra &amp; gửi</h2>
+    <div class="meta" id="meta"></div>
+    <div id="sumList"></div>
+    <div class="acts">
+      <button class="btn pri" id="share" style="margin-left:0">📤 Gửi qua Zalo / Email</button>
+      <button class="btn nav" id="copy">📋 Copy nội dung</button>
+      <button class="btn gh" id="csv">⬇️ Tải file CSV (Excel)</button>
+      <button class="btn gh" id="back">← Quay lại chỉnh sửa</button>
+    </div>
+  </section>
+</main>
+
+<div class="bar" id="bar"><div class="in">
+  <div class="cnt"><b id="bCnt">0</b> quyền đã chọn<br><span id="bF">0 folder</span></div>
+  <button class="btn pri" id="next" disabled>Xem tổng hợp →</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== DỮ LIỆU NHÂN SỰ ===== */
+const S = {
+  'minh.digital':['Mai Văn Minh','minh.digital@goldenmg.com'],
+  'trinh.bgd':['Lê Thị Thu Trinh','trinh.bgd@goldenmg.com'],
+  'thanh.qlmkt':['Cao Thị Huyền Thanh','thanh.qlmkt@goldenmg.com'],
+  'thu.qlkt':['Phạm Thị Hồng Thu','thu.qlkt@goldenmg.com'],
+  'hang.qlq1':['Kiều Nguyễn Thúy Hằng','hang.qlq1@goldenlotus.world'],
+  'an.tc47':['Lê Thị Vạn An','an.tc47@goldenmg.com'],
+  'thuy.kt47':['Nguyễn Đào Thùy','thuy.kt47@goldenmg.com'],
+  'chi.kt47':['Đào Thị Kim Chi','chi.kt47@goldenmg.com'],
+  'duy.kt47':['Phạm Đăng Đan Duy','duy.kt47@goldenmg.com'],
+  'lai.kt47':['Trần Thị Lai','lai.kt47@goldenmg.com'],
+  'tuoi.kt47':['Phạm Thị Tươi','tuoi.kt47@goldenmg.com'],
+  'mkt':['Trúc + Hoàng','mkt@goldenlotus.world'],
+  'vy.gdmkt':['Lê Thị Hồng Vy','vy.gdmkt@goldenmg.com'],
+  'nguyet.vh':['Đỗ Thị Ánh Nguyệt','nguyet.vh@goldenlotus.world'],
+  'qlkt.q2':['Quản lý kế toán Q2','qlkt.q2@goldenmg.com'],
+  'hieu.qlq2':['Trần Thị Thu Hiếu','hieu.qlq2@goldenlotus.world'],
+  'anh.vpq2':['Nguyễn Trần Phương Anh','anh.vpq2@goldenlotus.world'],
+  'phuong.vpq2':['Trần Thị Mỹ Phương','phuong.vpq2@goldenlotus.world'],
+  'mai.hr':['Lê Thị Thanh Mai','mai.hr@goldenlotus.world'],
+  'duan':['Team Dự Án','duan@goldenlotus.world'],
+  'thuy.tm':['Phạm Thị Hoàng Thúy','thuy.tm@goldenlotus.world'],
+  'thuy.tc':['Đoàn Thị Thanh Thúy','thuy.tc@goldenmg.com'],
+  'nga.ktq2':['Trần Thị Thanh Nga','nga.ktq2@goldenmg.com'],
+  'ha.qlq7':['Lê Thị Hà','ha.qlq7@goldenlotus.world'],
+  'nhansu':['Phương','nhansu@goldenlotus.world'],
+  'marketing':['Lê Thị Ngọc Thắm','marketing@goldenlotus.world'],
+  'dung.ktq7':['Nguyễn Thị Hoàng Dung','dung.ktq7@goldenmg.com'],
+  'vong.ktq7':['Đặng Thị Vòng','vong.ktq7@goldenmg.com'],
+  'viet.qlns':['Đặng Thị Linh Việt','viet.qlns@goldenmg.com'],
+  'yen.ql100':['Nguyễn Bảo Yến','yen.ql100@goldenlotus.world'],
+  'thang.pql209':['Nguyễn Thị Thắng','thang.pql209@goldenlotus.world'],
+  'dinh.pql63':['Nguyễn Thị Định','dinh.pql63@goldenlotus.world'],
+  'dung.pql76':['Trần Lê Hoài Dung','dung.pql76@goldenlotus.world'],
+  'truc.mktdn':['Lê Hương Trúc','truc.mktdn@goldenlotus.world'],
+  'phi.tm':['Bùi Thị Hoàn Phi','phi.tm@goldenlotus.world'],
+  'anh.kt63':['Huỳnh Thị Kim Ánh','anh.kt63@goldenmg.com'],
+  'chau.kt63':['Nguyễn Thị Minh Châu','chau.kt63@goldenmg.com'],
+  'phuoc.kt63':['Hứa Đình Diệu Phước','phuoc.kt63@goldenmg.com'],
+  'van.kt63':['Nguyễn Thị Thanh Vân VP','van.kt63@goldenmg.com'],
+  'yen.kt63':['Trần Thị Kim Yến','yen.kt63@goldenmg.com'],
+  /* Không hiện trong danh sách chọn (BGĐ / Trợ lý GĐ), chỉ dùng làm tên người đề nghị */
+  'khanh.da':['Phạm Trần Kim Khánh','khanh.da@goldenmg.com'],
+  'trinh.gd':['Nguyễn Thị Trinh','trinh.gd@goldenmg.com']
+};
+
+/* Khu vực */
+const AREA = {
+  Q1:['minh.digital','trinh.bgd','thanh.qlmkt','thu.qlkt','hang.qlq1','an.tc47','thuy.kt47','chi.kt47','duy.kt47','lai.kt47','tuoi.kt47'],
+  Q2:['mkt','vy.gdmkt','nguyet.vh','qlkt.q2','hieu.qlq2','anh.vpq2','phuong.vpq2','mai.hr','duan','thuy.tm','thuy.tc','nga.ktq2'],
+  Q7:['ha.qlq7','nhansu','marketing','dung.ktq7','vong.ktq7'],
+  DN:['viet.qlns','yen.ql100','thang.pql209','dinh.pql63','dung.pql76','truc.mktdn','phi.tm','anh.kt63','chau.kt63','phuoc.kt63','van.kt63','yen.kt63']
+};
+/* Bộ phận (dùng để thêm người cùng bộ phận ở khu vực khác) */
+const DEPT = {
+  MKT:['minh.digital','thanh.qlmkt','marketing','mkt','vy.gdmkt','truc.mktdn'],
+  NS:['trinh.bgd','nhansu','viet.qlns','mai.hr'],
+  KT:['thu.qlkt','qlkt.q2','an.tc47','thuy.tc','nga.ktq2','thuy.kt47','chi.kt47','duy.kt47','lai.kt47','tuoi.kt47','anh.kt63','chau.kt63','phuoc.kt63','van.kt63','yen.kt63','dung.ktq7','vong.ktq7'],
+  TM:['phi.tm','thuy.tm'],
+  DA:['trinh.gd','khanh.da','duan']
+};
+
+/* Quản lý: email · key nhân sự · khu vực · bộ phận · folder (folder có thể ghi đè khu vực bằng {f, area}) */
+const MGR = [
+  ['dung.pql76@goldenlotus.world','dung.pql76','DN',[],['1_Bao cao cong viec (Cty, Branch) all › DN_76HV','3_VH - Van Hanh › VH - 76HV','9_NS_Branch › NS_76HV']],
+  ['yen.ql100@goldenlotus.world','yen.ql100','DN',[],['1_Bao cao cong viec (Cty, Branch) all › DN_100TBD','3_VH - Van Hanh › VH - 100TBD','9_NS_Branch › NS_100TBD']],
+  ['thang.pql209@goldenlotus.world','thang.pql209','DN',[],['1_Bao cao cong viec (Cty, Branch) all › DN_209TP','3_VH - Van Hanh › VH - 209TP','9_NS_Branch › NS_209TP']],
+  ['ha.qlq7@goldenlotus.world','ha.qlq7','Q7',[],['1_Bao cao cong viec (Cty, Branch) all › HCM_Q7','3_VH - Van Hanh › VH - Q7','9_NS_Branch › NS_Q7']],
+  ['hieu.qlq2@goldenlotus.world','hieu.qlq2','Q2',[],['1_Bao cao cong viec (Cty, Branch) all › HCM_Q2','3_VH - Van Hanh › VH - Q2']],
+  ['hang.qlq1@goldenlotus.world','hang.qlq1','Q1',[],['1_Bao cao cong viec (Cty, Branch) all › HCM_Q1','3_VH - Van Hanh › VH - Q1','9_NS_Branch › NS_Q1',{f:'9_NS_Branch › NS_Q2',area:'Q2'}]],
+  ['trinh.bgd@goldenmg.com','trinh.bgd','Q1',['NS'],['1_Staff SOP Training (NS, Van Hanh) › Nhan Su','9_NS_Cty › DS báo cáo công việc Team NS',
+    '** WorkSpace Noi Dung (all staff) › (Toàn bộ Shared Drive)','3_Bao Tri (BT, NS, VH, DA) › (Toàn bộ Shared Drive)',
+    '8_Golden iOS Data › (New) HCNS 2026','8_Golden iOS Data › YC Phân Loại','8_Golden iOS Data › Danh Sách Nhóm Kakaotalk','8_Golden iOS Data › Workspace_Phân loại file',
+    '9_NS_Cty › Chính sách phúc lợi chăm sóc Nv.xlsx','9_NS_Cty › KẾ HOẠCH NHÂN SỰ NĂM 2027','9_NS_Cty › KPI- Đánh giá hiệu quả công việc',
+    '9_NS_Cty › Team NS. Làm việc chung','9_NS_Cty › 1. Hồ sơ nội bộ','9_NS_Cty › 2. Chi tiêu lương tuyển Nv - Bonus']],
+  ['nguyet.vh@goldenlotus.world','nguyet.vh','Q2',[],['1_Staff SOP Training (NS, Van Hanh) › Van Hanh']],
+  ['dinh.pql63@goldenlotus.world','dinh.pql63','DN',[],['3_VH - Van Hanh › VH - 63HB','9_NS_Branch › NS_63HB']],
+  ['phi.tm@goldenlotus.world','phi.tm','DN',['TM'],['5_Mua Hang (Thu mua, Ke toan, Van Hanh) › MH_DN','5_TM - Thu Mua › TM - DN']],
+  ['thuy.tm@goldenlotus.world','thuy.tm','Q2',['TM'],['5_Mua Hang (Thu mua, Ke toan, Van Hanh) › MH_HCM','5_TM - Thu Mua › TM - Q2','5_TM - Thu Mua › TM - Trung Tâm']],
+  ['khanh.da@goldenmg.com','khanh.da','Q2',['DA'],['7_DA Phat Trien (Ms.Khanh) › Du an-Khanh','7_DA Phat Trien (Ms.Khanh) › DA - Project 2026 (DA ms.Khanh) 업무 관리.xlsx']],
+  ['vy.gdmkt@goldenmg.com','vy.gdmkt','Q2',['MKT'],['7_DA Phat Trien (Ms.Khanh) › Du an chi Vy','9_MKT - MARKETING › MKT - OFFLINE','9_MKT - MARKETING › Menu Giá (Mới)','3_Branch Event plan (Marketing, Van Hanh) › (Toàn bộ Shared Drive)']],
+  ['minh.digital@goldenmg.com','minh.digital','Q1',['MKT'],['8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › APP_IT Meeting (Zintech)','8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › APP_DS NV Đăng ký app',
+    '8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › App_Share','8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › App_Nhan Vien','8_Golden iOS Data › iOS_Nhan Vien']],
+  ['trinh.gd@goldenmg.com','trinh.gd','Q2',['DA'],['8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › APP_Membership App Meeting','7_DA Xay Dung › Pet Cafe Project','7_DA Xay Dung › XD_Nhan Vien']],
+  ['mkt@goldenlotus.world','mkt','Q2',['MKT'],['8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › HDSD APP GOLDEN MEMBERSHIP','8_Cty App (Mr.Minh, Ms.truc, Ms.trinh) › APP_Manual - FAQ']],
+  ['thu.qlkt@goldenmg.com','thu.qlkt','Q1',['KT'],['9_KT - KE TOAN (Noi bo) › (Toàn bộ Shared Drive)','9_KT - KE TOAN (Noi bo) › KT - Dự Án','9_KT - KE TOAN (Noi bo) › KT - Tổng Hợp']],
+  ['lai.kt47@goldenmg.com','lai.kt47','Q1',['KT'],['9_KT - KE TOAN (Noi bo) › KT - Q1']],
+  ['nga.ktq2@goldenmg.com','nga.ktq2','Q2',['KT'],['9_KT - KE TOAN (Noi bo) › KT - Q2']],
+  ['vong.ktq7@goldenmg.com','vong.ktq7','Q7',['KT'],['9_KT - KE TOAN (Noi bo) › KT - Q7']],
+  ['yen.kt63@goldenmg.com','yen.kt63','DN',['KT'],['9_KT - KE TOAN (Noi bo) › KT - DN']],
+  ['thanh.qlmkt@goldenmg.com','thanh.qlmkt','Q1',['MKT'],['9_MKT - MARKETING › MKT - ONLINE']],
+  ['nhansu@goldenlotus.world','nhansu','Q7',['NS'],['9_NS_Cty › Chính sách bốc thăm may mắn.png','9_NS_Cty › Golden_Lotus_Thong_Bao_Boc_Tham_1_Trang.docx','9_NS_Cty › Cty Can Tuyen Dung N.V',
+    '9_NS_Cty › NS_Nhan Vien (File cá nhân tự làm)','9_NS_Cty › 4. Thông báo Cty','9_NS_Cty › 3. Form cam kết. Cty','9_NS_Cty › NS_Share']],
+  ['thuy.tc@goldenmg.com','thuy.tc','Q2',['KT'],['9_KT - Tai Chinh › (Toàn bộ Shared Drive)']]
+];
+const PERMS = ['Người xem','Người nhận xét','Người chỉnh sửa','Quản lý nội dung'];
+
+const SHORT = {'Người xem':'Xem','Người nhận xét':'Nhận xét','Người chỉnh sửa':'Sửa','Quản lý nội dung':'QL'};
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const strip = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+const initials = n => n.split(/\s+/).filter(Boolean).slice(-2).map(w => w[0]).join('').toUpperCase();
+function members(self, area, depts){
+  const out = [];
+  [AREA[area], ...depts.map(d => DEPT[d])].forEach(l => l.forEach(k => { if (k !== self && !out.includes(k)) out.push(k); }));
+  return out;
+}
+const FOLDERS = MGR.map(m => m[4].map(fd => typeof fd === 'string' ? {f:fd, list:members(m[1], m[2], m[3])} : {f:fd.f, list:members(m[1], fd.area, m[3])}));
+
+/* File con có sẵn theo folder (điền khi có danh sách): 'Tên folder đầy đủ': ['file con 1','file con 2'] */
+const SUB = {};
+
+/* trạng thái: st[fi] = {act, items:[{n, sel:{key:quyền}, ext}]} */
+let cur = null, st = [];
+const KEY = 'glh_phanquyen_draft_v2';
+const ALL = 'Toàn bộ folder';
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({cur, st, note:$('note').value})); }catch(e){} }
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){ return null; } }
+const newItem = n => ({n, sel:{}, ext:''});
+
+/* BƯỚC 1 */
+function drawMgr(){
+  const q = strip($('q1').value.trim());
+  let h = '';
+  MGR.forEach((m, i) => {
+    const n = S[m[1]][0];
+    if (q && !strip(n + ' ' + m[0]).includes(q)) return;
+    h += `<div class="mgr" data-i="${i}"><div class="av">${esc(initials(n))}</div>
+      <div><div class="n">${esc(n)}</div><div class="e">${esc(m[0])}</div></div>
+      <div class="c">${m[4].length} folder</div></div>`;
+  });
+  $('mgrList').innerHTML = h || '<div class="empty">Không tìm thấy</div>';
+}
+$('q1').addEventListener('input', drawMgr);
+$('mgrList').addEventListener('click', e => {
+  const c = e.target.closest('.mgr'); if (!c) return;
+  pick(+c.dataset.i);
+});
+
+function pick(i, keep){
+  if (!keep && cur !== i){
+    st = FOLDERS[i].map(fd => ({act:0, items:[newItem(ALL), ...(SUB[fd.f] || []).map(newItem)]}));
+  }
+  cur = i;
+  const m = MGR[i], n = S[m[1]][0];
+  $('wAv').textContent = initials(n); $('wN').textContent = n; $('wE').textContent = m[0];
+  drawFolders(); go(2); save();
+}
+$('chg').addEventListener('click', () => go(1));
+
+/* BƯỚC 2 */
+function drawFolders(){
+  let h = '';
+  FOLDERS[cur].forEach((fd, fi) => {
+    const parts = fd.f.split(' › ');
+    h += `<div class="fold${FOLDERS[cur].length === 1 ? ' open' : ''}" data-fi="${fi}">
+      <div class="fh"><span class="ic">📁</span><div><div class="p">${esc(parts[0])}</div><div class="nm">${esc(parts.slice(1).join(' › ') || parts[0])}</div></div>
+      <span class="bd" id="bd${fi}">0</span><svg class="ch" width="20" height="20" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+      <div class="fb">
+        <div class="items" id="it${fi}"></div>
+        <div class="addrow" id="ar${fi}"><input type="text" placeholder="Tên hoặc link file / thư mục con" data-addin="${fi}"><button class="btn nav sm" data-addok="${fi}">Thêm</button></div>
+        <div class="cur" id="cu${fi}"></div>
+        <div class="tools"><input class="search" type="search" placeholder="Tìm người…" data-sq="${fi}"></div>
+        ${fd.list.map(k => `<div class="per" data-k="${k}" data-s="${esc(strip(S[k][0] + ' ' + S[k][1]))}">
+          <div class="n">${esc(S[k][0])}</div><div class="e">${esc(S[k][1])}</div>
+          <div class="seg">${PERMS.map(p => `<button type="button" data-p="${p}">${SHORT[p]}</button>`).join('')}</div></div>`).join('')}
+        <div class="ext"><label>✉️ Email ngoài cho mục đang chọn (nếu có)</label>
+          <textarea rows="2" data-ext="${fi}" placeholder="VD: abc@gmail.com – Xem"></textarea></div>
+        <button class="lnk" data-clr="${fi}">Bỏ chọn tất cả trong mục này</button>
+      </div></div>`;
+  });
+  $('folders').innerHTML = h;
+  FOLDERS[cur].forEach((fd, fi) => showItem(fi));
+  refresh();
+}
+
+/* hiển thị mục đang chọn (toàn bộ folder hoặc 1 file con) */
+function showItem(fi){
+  const f = st[fi], it = f.items[f.act];
+  $('it' + fi).innerHTML = f.items.map((x, j) => {
+    const c = Object.keys(x.sel).length + (x.ext.trim() ? 1 : 0);
+    return `<button data-item="${fi}:${j}" class="${j === f.act ? 'act' : ''}">${j === 0 ? '📁 ' : '📄 '}${esc(x.n.length > 28 ? x.n.slice(0, 26) + '…' : x.n)}${c ? `<span class="k">${c}</span>` : ''}</button>`;
+  }).join('') + `<button class="plus" data-plus="${fi}">＋ File con</button>`;
+  $('cu' + fi).innerHTML = `<span>Đang phân quyền: ${f.act === 0 ? '📁 Toàn bộ folder' : '📄 ' + esc(it.n)}</span>${f.act ? `<button class="del" data-del="${fi}">Xóa mục này</button>` : ''}`;
+  const box = document.querySelector(`.fold[data-fi="${fi}"]`);
+  box.querySelectorAll('.per').forEach(p => {
+    const v = it.sel[p.dataset.k];
+    p.querySelectorAll('.seg button').forEach(b => b.classList.toggle('sel', b.dataset.p === v));
+    p.classList.toggle('on', !!v);
+  });
+  box.querySelector(`[data-ext="${fi}"]`).value = it.ext;
+}
+
+function addSub(fi){
+  const inp = document.querySelector(`[data-addin="${fi}"]`), v = inp.value.trim();
+  if (!v) { inp.focus(); return; }
+  st[fi].items.push(newItem(v)); st[fi].act = st[fi].items.length - 1;
+  inp.value = ''; $('ar' + fi).classList.remove('on');
+  showItem(fi); refresh(); save();
+}
+
+$('folders').addEventListener('click', e => {
+  const fh = e.target.closest('.fh');
+  if (fh){ fh.parentElement.classList.toggle('open'); return; }
+  const ib = e.target.closest('[data-item]');
+  if (ib){ const [fi, j] = ib.dataset.item.split(':').map(Number); st[fi].act = j; showItem(fi); save(); return; }
+  const pl = e.target.closest('[data-plus]');
+  if (pl){ const fi = +pl.dataset.plus; $('ar' + fi).classList.toggle('on'); document.querySelector(`[data-addin="${fi}"]`).focus(); return; }
+  const ok = e.target.closest('[data-addok]');
+  if (ok){ addSub(+ok.dataset.addok); return; }
+  const dl = e.target.closest('[data-del]');
+  if (dl){
+    const fi = +dl.dataset.del, f = st[fi];
+    if (confirm('Xóa mục "' + f.items[f.act].n + '"?')){ f.items.splice(f.act, 1); f.act = 0; showItem(fi); refresh(); save(); }
+    return;
+  }
+  const b = e.target.closest('.seg button');
+  if (b){
+    const fi = +b.closest('.fold').dataset.fi, k = b.closest('.per').dataset.k, p = b.dataset.p;
+    const it = st[fi].items[st[fi].act];
+    if (it.sel[k] === p) delete it.sel[k]; else it.sel[k] = p;
+    if (navigator.vibrate) navigator.vibrate(8);
+    showItem(fi); refresh(); save(); return;
+  }
+  const c = e.target.closest('[data-clr]');
+  if (c){ const fi = +c.dataset.clr; st[fi].items[st[fi].act].sel = {}; showItem(fi); refresh(); save(); }
+});
+$('folders').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.dataset.addin !== undefined){ e.preventDefault(); addSub(+e.target.dataset.addin); }
+});
+$('folders').addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.ext !== undefined){ const fi = +t.dataset.ext; st[fi].items[st[fi].act].ext = t.value; refresh(); save(); }
+  if (t.dataset.sq !== undefined){
+    const q = strip(t.value.trim());
+    t.closest('.fb').querySelectorAll('.per').forEach(p => p.style.display = !q || p.dataset.s.includes(q) ? '' : 'none');
+  }
+});
+$('folders').addEventListener('change', e => { if (e.target.dataset.ext !== undefined) showItem(+e.target.dataset.ext); });
+$('note').addEventListener('input', save);
+
+function refresh(){
+  let total = 0, fc = 0;
+  st.forEach((f, fi) => {
+    let n = 0, any = false;
+    f.items.forEach(x => { n += Object.keys(x.sel).length; if (Object.keys(x.sel).length || x.ext.trim()) any = true; });
+    total += n; if (any) fc++;
+    const bd = $('bd' + fi); if (bd){ bd.textContent = n; bd.classList.toggle('has', any); }
+  });
+  $('bCnt').textContent = total; $('bF').textContent = fc + ' folder';
+  $('next').disabled = fc === 0;
+}
+
+/* BƯỚC 3 */
+function collect(){
+  const m = MGR[cur], rows = [];
+  FOLDERS[cur].forEach((fd, fi) => {
+    st[fi].items.forEach((x, j) => {
+      const target = j === 0 ? fd.f : fd.f + ' › ' + x.n;
+      fd.list.forEach(k => { if (x.sel[k]) rows.push({folder:target, name:S[k][0], email:S[k][1], perm:x.sel[k]}); });
+      if (x.ext.trim()) rows.push({folder:target, name:'Email ngoài', email:x.ext.trim(), perm:'(ghi trong ô)', ext:true});
+    });
+  });
+  return {mgr:m[0], mgrName:S[m[1]][0], note:$('note').value.trim(), rows, time:new Date().toLocaleString('vi-VN')};
+}
+$('next').addEventListener('click', () => {
+  const d = collect();
+  $('meta').innerHTML = `<b>${esc(d.mgrName)}</b> · ${esc(d.mgr)}<br>${esc(d.time)}${d.note ? '<br>Ghi chú: ' + esc(d.note) : ''}`;
+  const by = {};
+  d.rows.forEach(r => (by[r.folder] = by[r.folder] || []).push(r));
+  $('sumList').innerHTML = Object.keys(by).map(f => `<div class="sum"><h3>${f.split(' › ').length > 2 ? '📄' : '📁'} ${esc(f)}</h3>${
+    by[f].map(r => `<div class="row"><div><div>${esc(r.name)}</div><div class="e">${esc(r.email)}</div></div><div class="r">${r.ext ? '' : esc(r.perm)}</div></div>`).join('')}</div>`).join('');
+  go(3);
+});
+$('back').addEventListener('click', () => go(2));
+
+function asText(d){
+  let t = `ĐỀ NGHỊ PHÂN QUYỀN SHARED DRIVE\nNgười đề nghị: ${d.mgrName} (${d.mgr})\nThời gian: ${d.time}\n`;
+  if (d.note) t += `Ghi chú: ${d.note}\n`;
+  const by = {};
+  d.rows.forEach(r => (by[r.folder] = by[r.folder] || []).push(r));
+  Object.keys(by).forEach(f => {
+    t += `\n📁 ${f}\n`;
+    by[f].forEach(r => t += r.ext ? `  • Email ngoài: ${r.email}\n` : `  • ${r.name} (${r.email}): ${r.perm}\n`);
+  });
+  return t;
+}
+function copyText(t){
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+  const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select();
+  document.execCommand('copy'); a.remove(); return Promise.resolve();
+}
+$('copy').addEventListener('click', () => copyText(asText(collect())).then(() => toast('Đã copy – dán vào Zalo/Email')));
+$('share').addEventListener('click', async () => {
+  const t = asText(collect());
+  if (navigator.share){ try{ await navigator.share({title:'Đề nghị phân quyền Shared Drive', text:t}); }catch(e){} }
+  else { await copyText(t); toast('Máy không hỗ trợ chia sẻ – đã copy nội dung'); }
+});
+$('csv').addEventListener('click', () => {
+  const d = collect(), q = s => '"' + String(s).replace(/"/g,'""') + '"';
+  let csv = '﻿' + ['Thời gian','Người đề nghị','Email đề nghị','Folder','Họ tên','Email được cấp','Quyền','Ghi chú'].map(q).join(',') + '\n';
+  d.rows.forEach(r => csv += [d.time, d.mgrName, d.mgr, r.folder, r.name, r.email, r.perm, d.note].map(q).join(',') + '\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = `PhanQuyen_${d.mgr.split('@')[0]}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+});
+
+/* điều hướng */
+function go(n){
+  [1,2,3].forEach(i => { $('v' + i).classList.toggle('on', i === n); $('s' + i).classList.toggle('on', i <= n); });
+  $('bar').classList.toggle('on', n === 2);
+  $('sub').textContent = 'Golden Management · Bước ' + n + '/3: ' + ['Chọn email của bạn','Phân quyền từng folder','Kiểm tra & gửi'][n-1];
+  window.scrollTo(0, 0);
+}
+function toast(m){ const t = $('toast'); t.textContent = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2200); }
+
+/* khởi động: khôi phục bản nháp nếu có */
+drawMgr();
+const d0 = load();
+if (d0 && d0.cur !== null && d0.cur !== undefined && MGR[d0.cur] && Array.isArray(d0.st) && d0.st.length === FOLDERS[d0.cur].length){
+  st = d0.st; $('note').value = d0.note || '';
+  pick(d0.cur, true);
+}
+</script>
+</body>
+</html>
